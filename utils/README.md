@@ -10,3 +10,4 @@ Here we present some functions used to preprocess the CH-Unicamp dataset. These 
 
 [Extract Frames](extract_frames.bat): This script uses a docker image of ffmpeg to extract frames from each video within the CH-Unicamp dataset.
 
+[Extract Keypoints](extract_keypoints.py): This script uses the face alignment lib to find the facial keypoints in the images. 

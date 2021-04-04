@@ -13,4 +13,5 @@
 
 - Install Face Alignement libs to extract the keypoints from the images;
 - Convert the videos to individual png frames;
+- Created a script to extract the facial keypoints and crop the images to the format used when training the original network.
 
