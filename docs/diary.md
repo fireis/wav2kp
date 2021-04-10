@@ -19,3 +19,4 @@
 
 - My main objective today is to give wav2vec2 a fisrt try;
 - When opening the wav files produced previously, I had to deal with format issues, as I had extracted the wav with mp3 compression, and scipy doesn't accept it. The solution was to try some conversion methods and update the audio extraction script after I found a working config;
+- Concluded that I will probably need to downsample the audio to 16k, as the pretrained model used this rate. For future reference, I will use the post: https://huggingface.co/blog/fine-tune-wav2vec2-english .
