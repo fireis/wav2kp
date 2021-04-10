@@ -15,3 +15,7 @@
 - Convert the videos to individual png frames;
 - Created a script to extract the facial keypoints and crop the images to the format used when training the original network.
 
+## Day 3 - 04/10/2021
+
+- My main objective today is to give wav2vec2 a fisrt try;
+- When opening the wav files produced previously, I had to deal with format issues, as I had extracted the wav with mp3 compression, and scipy doesn't accept it. The solution was to try some conversion methods and update the audio extraction script after I found a working config;
