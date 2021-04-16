@@ -26,3 +26,13 @@
 - My main objective today is to make a first feature extraction applying wav2vec2 to the CH-Unicamp dataset;
 - Tested the facebook/wav2vec2-large-xlsr-53-portuguese model and found out that it performs well in speech recognition. My conclusion is that I can the actual sentences extracted from the audio by this model as input to my LSTM  in a semi-supervised manner. I also tested the facebook/wav2vec2-base-960h and realized that, although the words were incorrect, the phonemes I imagine when reading the generated text make sense when comparing to the actual sentence. It seems to be a good option for a multilingual project, but we might stick to Portuguese this time as the dataset is fully in pt-br.
 - Now, I'm going to research a bit more on LSTMs with varying input and output sizes. This will help if using either MFCC extracted from the audio or the words from the wav2vec2 model.
+
+## Day 5 - 04/12/2021
+
+- Understand if we could use wav2vec2 to determine the timing for each word. This could be then used to crop the audio signals to be used as input to the LSTM.
+
+## Days 6, 7 and 8 - 04/12/2021 - 04/15/2021
+
+- Tried to find if wav2vec2 would be able to produce the time period for each word, but I concluded that this would be unfeasible due to its structure;
+- Researched LSTM and audio processing option. Decided to try using MFCC with window of 33ms as the videos are 29.97 FPS, so we should have a window per frame. I believe this wouldn't be necessary, but at least it is a way to justify the window;
+
