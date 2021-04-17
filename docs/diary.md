@@ -36,3 +36,10 @@
 - Tried to find if wav2vec2 would be able to produce the time period for each word, but I concluded that this would be unfeasible due to its structure;
 - Researched LSTM and audio processing option. Decided to try using MFCC with window of 33ms as the videos are 29.97 FPS, so we should have a window per frame. I believe this wouldn't be necessary, but at least it is a way to justify the window;
 
+## Day 9 - 04/17/2021
+
+- Process audio files, extracting MFCCs;
+- Create the train, test and validation division of the dataset;
+- Ideally, I would find a way to make my network input size variable. But, as this adds complexity and I want to have at least something done at the end of the development period, I'm deciding to work with fixed size for now and leave this as an improvement path for later;
+- Creation of the torch lightning data model;
+- Read a bit about [NeMo](https://github.com/NVIDIA/NeMo) and [asteroid](https://asteroid-team.github.io/), which could help with ready encoder modules. But I think I'll leave this for later as I want to have a bit more control on what I'm actually doing; 
