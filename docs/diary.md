@@ -43,3 +43,11 @@
 - Ideally, I would find a way to make my network input size variable. But, as this adds complexity and I want to have at least something done at the end of the development period, I'm deciding to work with fixed size for now and leave this as an improvement path for later;
 - Creation of the torch lightning data model;
 - Read a bit about [NeMo](https://github.com/NVIDIA/NeMo) and [asteroid](https://asteroid-team.github.io/), which could help with ready encoder modules. But I think I'll leave this for later as I want to have a bit more control on what I'm actually doing; 
+
+## Day 10 - 04/18/2021
+
+- Objective: finish the data loader structure and train a first network to validate the process;
+- Realized that there was a bug in the keypoint extraction that made the reduced keypoints to be identical to the original ones. Then I fixed and ran the process again;
+- I was trying to use the mfcc transformation on the dataset class, but I was getting to confuse and couldn't make progress. So I decided to preprocess the complete dataset and use pytorch only to load the files. This makes changes to the transform more challenging and maybe more difficult to implement an inference pipeline in the future, but I think that by the time I have something working it will be easier to make things the way I want, moving this part to the dataset class;
+- Started exploring the network. Found that [pack padded sequence may solve my problem](https://pytorch.org/docs/stable/generated/torch.nn.utils.rnn.pack_padded_sequence.html#torch.nn.utils.rnn.pack_padded_sequence). I have to understand it a bit better, [this seems to be a nice source](https://stackoverflow.com/questions/51030782/why-do-we-pack-the-sequences-in-pytorch);
+
