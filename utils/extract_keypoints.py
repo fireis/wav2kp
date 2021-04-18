@@ -47,7 +47,7 @@ def find_kp(path, method="fa", save_img=True, resize=False, cropped=False):
     elif method == "fa":
         save_path_txt = path
         if cropped:
-            save_path_txt = save_path_txt.replace("images", "keypoints_reduced")
+            save_path_txt = save_path_txt.replace("images_reduced", "keypoints_reduced")
         else:
             save_path_txt = save_path_txt.replace("images", "keypoints")
         
@@ -115,8 +115,9 @@ if __name__ == "__main__":
         images = tqdm(images)
         
         Parallel(n_jobs=12)(delayed(resize_orig_v2v)(image) for image in images)
-    
+
+    reduced_folders = glob.glob("C:/studies/wav2kp/raw_videos/*/images_reduced/")
+    reduced_folders = tqdm(reduced_folders)
     print("\nFinding keypoints on reduced images")
-    Parallel(n_jobs=2)(delayed(find_kp)(folder, save_img=True, method="fa", cropped=True) for folder in folders)
-    # find_kp(folder, save_img=True, method="fa", cropped=True)
+    Parallel(n_jobs=2)(delayed(find_kp)(folder, save_img=True, method="fa", cropped=True) for folder in reduced_folders)
 
