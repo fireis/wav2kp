@@ -50,4 +50,10 @@
 - Realized that there was a bug in the keypoint extraction that made the reduced keypoints to be identical to the original ones. Then I fixed and ran the process again;
 - I was trying to use the mfcc transformation on the dataset class, but I was getting to confuse and couldn't make progress. So I decided to preprocess the complete dataset and use pytorch only to load the files. This makes changes to the transform more challenging and maybe more difficult to implement an inference pipeline in the future, but I think that by the time I have something working it will be easier to make things the way I want, moving this part to the dataset class;
 - Started exploring the network. Found that [pack padded sequence may solve my problem](https://pytorch.org/docs/stable/generated/torch.nn.utils.rnn.pack_padded_sequence.html#torch.nn.utils.rnn.pack_padded_sequence). I have to understand it a bit better, [this seems to be a nice source](https://stackoverflow.com/questions/51030782/why-do-we-pack-the-sequences-in-pytorch);
+- Finished the day with issues on padding the sequence to make the size consistent;
+
+## Day 11 - 04/19/2021
+
+- Tried to fix the issues with the padding of the input vectors to start using a proper LSTM;
+- Used padding to shape the input arrays to the LSTM network.
 
