@@ -57,3 +57,8 @@
 - Tried to fix the issues with the padding of the input vectors to start using a proper LSTM;
 - Used padding to shape the input arrays to the LSTM network.
 
+## Day 12 - 04/20/2021
+
+- Written the fundamental parts for torch lightning;
+- Experimented with LSTM, but still could not fix the configs to match our input.
+
