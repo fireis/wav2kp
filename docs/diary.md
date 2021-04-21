@@ -62,3 +62,7 @@
 - Written the fundamental parts for torch lightning;
 - Experimented with LSTM, but still could not fix the configs to match our input.
 
+## Day 13 - 04/21/2021
+
+- Could get the input shapes for the LSTM right and after lots of debugging, realized that my issue now was with the fully connected layer;
+- Got the network working, but I think that I need to change the output shape. Im confused on wheter the LSTM will ouput the time sequence as a single output (so each time step would be a piece of a single vector) or if there would be one output per time step

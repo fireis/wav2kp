@@ -104,4 +104,5 @@ class BaseDataset(torch.utils.data.Dataset):
         if self.target_transform is not None:
             target = self.target_transform(target)
 
+        datum = datum.squeeze()
         return datum, target
