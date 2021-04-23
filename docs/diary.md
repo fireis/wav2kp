@@ -66,3 +66,11 @@
 
 - Could get the input shapes for the LSTM right and after lots of debugging, realized that my issue now was with the fully connected layer;
 - Got the network working, but I think that I need to change the output shape. Im confused on wheter the LSTM will ouput the time sequence as a single output (so each time step would be a piece of a single vector) or if there would be one output per time step
+
+## Day 14 - 04/22/2021
+
+- Studied LSTMs, losses and the output shape to asses what should I do to make my model work.
+
+## Day 15 - 04/23/2021
+
+- Concluded that I should use CTC loss and should not pad my Y vectors (keypoints).
