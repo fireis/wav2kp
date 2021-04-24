@@ -128,4 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 raw_videos/*
+training/*
 .vscode/settings.json
