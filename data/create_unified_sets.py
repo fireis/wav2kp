@@ -48,7 +48,6 @@ def find_keypoints(keypoints_folder):
     # transform to numpy array to make processing easier
     # keypoints = np.array(keypoints) 
     
-
     return keypoints
 
 def read_keypoint_txt(keypoints_folder):
@@ -63,8 +62,12 @@ def read_audio_file(path=""):
     path = path.replace("\\", "\\")
     return torchaudio.load(path)
 
-def extract_mfcc(audio_file_path):
+def extract_mfcc(audio_file_path, resample=True):
     audio, sr =  read_audio_file(audio_file_path)
+    if resample:
+        resampler = transforms.Resample(orig_freq=sr, new_freq=16000)
+        sr = 16000
+        audio = resampler(audio)
     mfcc = transforms.MFCC(sample_rate=sr, melkwargs={"n_mels": 40})
     coefs = mfcc(audio)
     print(f"mfcc coefs initial shape: {coefs.shape}")
