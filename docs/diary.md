@@ -73,4 +73,11 @@
 
 ## Day 15 - 04/23/2021
 
-- Concluded that I should use CTC loss and should not pad my Y vectors (keypoints).
+- Concluded that I should use CTC loss and should not pad my Y vectors (keypoints);
+- Reviewed the dimensions after each transform I am applying to the data.
+
+## Day 16
+
+- Today I'll focus on rethinking my approach;
+- Followed an approach similar to obamanet and standardized my X and Y vector sizes;
+- Performed single training to check whether the structure is working.

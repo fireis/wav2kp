@@ -42,9 +42,9 @@ def find_keypoints(keypoints_folder):
         kps = torch.Tensor(kps)
         keypoints.append(kps)
         
-    print(f"find_keypoints, before padding: {len(keypoints)} , {keypoints[0].shape}")
+    #print(f"find_keypoints, before padding: {len(keypoints)} , {keypoints[0].shape}")
     keypoints = pad_sequence(keypoints, batch_first=True)
-    print(f"find_keypoints, after padding: {keypoints.shape}")
+    #print(f"find_keypoints, after padding: {keypoints.shape}")
     # transform to numpy array to make processing easier
     # keypoints = np.array(keypoints) 
     
@@ -70,11 +70,36 @@ def extract_mfcc(audio_file_path, resample=True):
         audio = resampler(audio)
     mfcc = transforms.MFCC(sample_rate=sr, melkwargs={"n_mels": 40})
     coefs = mfcc(audio)
-    print(f"mfcc coefs initial shape: {coefs.shape}")
+    #print(f"mfcc coefs initial shape: {coefs.shape}")
     coefs = torch.transpose(coefs, 1, 2)
     coefs = torch.squeeze(coefs)
-    print(f"mfcc coefs after transposing and squeezing shape: {coefs.shape}")
+    #print(f"mfcc coefs after transposing and squeezing shape: {coefs.shape}")
     return coefs
+
+def apply_window(mfccs, kps):
+    past_window = 40
+    time_delay = 20
+    X=[]
+    y=[]
+    kp2aud = mfccs.shape[0] / kps.shape[0]
+    for i in range(0, kps.shape[0] - 1):
+        idx = int(round(i * kp2aud, 0))
+
+        # handle last frames. I dont like this, but its good enough for now
+        if idx + past_window >= mfccs.shape[0] - 1:
+            idx = mfccs.shape[0] - past_window - 1
+
+        # print(idx, idx + past_window)
+        aud = mfccs[idx : idx + past_window].reshape((-1))
+        kp = kps[i] #.reshape((1, -1))
+        
+        X.append(aud)
+        y.append(kp)
+    X = pad_sequence(X)
+    X = torch.transpose(X, 0, 1)
+    y = pad_sequence(y)
+    y = torch.transpose(y, 0, 1)
+    return X, y
 
 def assemble_set(train_test_dist, set_name="Train"):
     file_names = train_test_dist[train_test_dist.set == set_name].video.unique()
@@ -89,6 +114,13 @@ def assemble_set(train_test_dist, set_name="Train"):
         keypoints = find_keypoints(keypoints_folder)
         # extract mfccs
         mfccs = extract_mfcc(audio_file_path)
+        # print(mfccs.shape)
+        # print(keypoints.shape)
+        mfccs, keypoints = apply_window(mfccs=mfccs, kps=keypoints)
+        # print(mfccs.shape)
+        # print(keypoints.shape)
+        
+
         # append to the dataset list
         mfccs_list.append(mfccs)
         keypoints_list.append(keypoints)
@@ -122,4 +154,4 @@ if __name__ == '__main__':
         
         torch.save(mfccs, f"{dataset_folder}{set_dist}_mfccs.pt" )
         np.save(f"{dataset_folder}{set_dist}_keypoints", keypoints, allow_pickle=True)
-        break
+        # break
