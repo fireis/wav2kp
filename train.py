@@ -1,3 +1,4 @@
+from os import name
 import numpy as np
 import torch
 import pytorch_lightning as pl
@@ -76,12 +77,6 @@ class LSTM(pl.LightningModule):
         return y_pred
 
 
-    def configure_optimizers(self):
-        optimizer = optim.Adam(self.parameters(), lr=0.001)
-        scheduler = optim.StepLR(optimizer, step_size=100, gamma=0.5)
-
-        return optimizer
-
     def training_step(self, batch, batch_idx):
         X_batch, y_batch = batch
         #print(f" X_batch:{X_batch.shape}, y_batch: {y_batch.shape}")
@@ -98,15 +93,18 @@ class LSTM(pl.LightningModule):
 
 
     
-    def validation_step(self, batch):
+    def validation_step(self, batch, batch_idx):
         X_batch, y_batch = batch
         y_pred = self.forward(X_batch)
-        
+        loss_fn = torch.nn.MSELoss()
+        loss = loss_fn(y_pred, y_batch.float())
+        tensorboard_logs = {'val_loss': loss}
+        self.log('val_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
         return {'loss': loss}
 
     def configure_optimizers(self):
         optimizer = optim.Adam(self.parameters(), lr=0.01)
-        scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=800, gamma=0.5)
+        scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=500, gamma=0.5)
 
         return [optimizer], [scheduler]
 
@@ -119,10 +117,9 @@ if __name__ == '__main__':
 
     model = LSTM(1600, 20, batch_size=80, output_dim=136, num_layers=1, dnn_shape=20)
 
-    logger = pl.loggers.TensorBoardLogger("training/logs")
+    logger = pl.loggers.TensorBoardLogger("training/logs", name="i20_o80")
 
+    trainer = pl.Trainer(logger=logger, weights_save_path="training/chkpt", gpus=1, max_epochs=1000000)
 
-    trainer = pl.Trainer(logger=logger, weights_save_path="training/logs", gpus=1 )
-
-    trainer.fit(model, train_loader)
+    trainer.fit(model, train_loader, val_dataloaders=val_loader)
 
