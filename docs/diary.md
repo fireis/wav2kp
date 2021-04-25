@@ -81,3 +81,9 @@
 - Today I'll focus on rethinking my approach;
 - Followed an approach similar to obamanet and standardized my X and Y vector sizes;
 - Performed single training to check whether the structure is working.
+
+## Day 17
+
+- Started by coding the drawing section of the code to be able to see the results from the latest training;
+- Added validation and training steps to model code;
+- Take model code to python file to improve trackability now that there is something that at leat seems to work;
