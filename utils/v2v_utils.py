@@ -163,9 +163,19 @@ def drawEdge(im, x, y, bw=1, color=(255,255,255), draw_end_points=False):
                         xx = np.maximum(0, np.minimum(w-1, np.array([x[0], x[-1]])+j))
                         setColor(im, yy, xx, color)
 
-def draw_face_edges_v2v(A_path):
-    keypoints, part_list, label_list = read_keypoints_v2v(A_path)
-    w, h = 1920, 1080
+def draw_face_edges_v2v(keypoints, file_name):
+    
+    part_list = [[list(range(0, 17)) + list(range(68, 83)) + [0]],  # face
+                 [range(17, 22)],  # right eyebrow
+                 [range(22, 27)],  # left eyebrow
+                 [[28, 31], range(31, 36), [35, 28]],  # nose
+                 [[36, 37, 38, 39], [39, 40, 41, 36]],  # right eye
+                 [[42, 43, 44, 45], [45, 46, 47, 42]],  # left eye
+                 [range(48, 55), [54, 55, 56, 57, 58, 59, 48]],  # mouth
+                 [range(60, 65), [64, 65, 66, 67, 60]]  # tongue
+                 ]
+
+    w, h = 256, 256
     edge_len = 3  # interpolate 3 keypoints to form a curve when drawing edges
     # edge map for face region from keypoints
     # im_edges = np.zeros((h, w), np.uint8) # edge map for all edges
@@ -193,7 +203,9 @@ def draw_face_edges_v2v(A_path):
 
     # np.save(im_edges,A_path.replace("txt", "png").replace("keypoints", "gambi_image"))
     im_edges = Image.fromarray(im_edges)
-    im_edges = resize_img(im_edges, keypoints)
-    im_edges.save(A_path.replace("txt", "png").replace("keypoints", "gambi_image"))
+    # im_edges = resize_img(im_edges, keypoints)
+    im_edges.save(file_name)
     # Image.fromarray(crop(im_edges, keypoints)).save(A_path.replace("txt", "png").replace("keypoints", "gambi_image"))
     return
+
+
