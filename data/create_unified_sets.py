@@ -102,7 +102,7 @@ def apply_window(mfccs, kps):
     return X, y
 
 def assemble_set(train_test_dist, set_name="Train"):
-    file_names = train_test_dist[train_test_dist.set == set_name].video.unique()
+    file_names = sorted(train_test_dist[train_test_dist.set == set_name].video.unique())
     mfccs_list = []
     keypoints_list = []
     ds = []
