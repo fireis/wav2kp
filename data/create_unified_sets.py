@@ -28,6 +28,14 @@ def assemble_path(file_name):
 
     return audio_file, keypoints_folder
 
+def upsample_keypoints(kps, scale=4, mode='linear'):
+    t = torch.Tensor(kps)
+    m = torch.nn.Upsample(scale_factor=scale, mode=mode)
+    tt = torch.transpose(t, 0, 2)
+    utt = m(tt)
+    uttt = torch.transpose(utt, 0, 2)
+    return uttt
+
 def find_keypoints(keypoints_folder):
     keypoints = []
     # open the files while sorting as the order matters
@@ -36,15 +44,21 @@ def find_keypoints(keypoints_folder):
     for frame in frames_list:
         kps = read_keypoint_txt(frame)
         kps = scale_keypoints(kps)
-        #print(f"find_keypoints, after reading keypointss: {kps.shape}")
         # make x and y a single sequence to make predictions easier
-        kps = np.reshape(kps, (1, 136)).squeeze()
-        #print(f"find_keypoints, after reading and making xy continuous: {kps.shape}")
-        kps = torch.Tensor(kps)
+        # kps = np.reshape(kps, (1, 136)).squeeze()
+        # print(f"find_keypoints, after reading and making xy continuous: {kps.shape}")
+        # kps = torch.Tensor(kps)
         keypoints.append(kps)
+        # print(f"find_keypoints, after reading keypointss: {kps.shape}")
+    print(f"pre upsampling {len(keypoints)} {keypoints[0].shape}")
+    keypoints = upsample_keypoints(keypoints)
+    print(f"post upsampling {keypoints.shape}")
+    keypoints = torch.reshape(keypoints, (keypoints.shape[0], 136))
+    print(f"post reshaping {keypoints.shape}")
+    # kps = np.reshape(kps, (1, 136)).squeeze()
         
-    #print(f"find_keypoints, before padding: {len(keypoints)} , {keypoints[0].shape}")
-    keypoints = pad_sequence(keypoints, batch_first=True)
+    print(f"find_keypoints, before padding: {len(keypoints)} , {keypoints[0].shape}")
+    # keypoints = pad_sequence(keypoints, batch_first=True)
     #print(f"find_keypoints, after padding: {keypoints.shape}")
     # transform to numpy array to make processing easier
     # keypoints = np.array(keypoints) 
@@ -182,13 +196,13 @@ if __name__ == '__main__':
         mfccs, keypoints, aud_len, kp_len = assemble_set(train_test_dist, set_name=set_dist)
         
         print(f"set creation, before mfcc padding: {len(mfccs)}, {mfccs[0].shape}")
-        mfccs = pad_sequence(mfccs, batch_first=True)
-        print(f"set creation, after mfcc padding: {mfccs.shape}")
+        #mfccs = pad_sequence(mfccs, batch_first=True)
+        #print(f"set creation, after mfcc padding: {mfccs.shape}")
 
         print(f"set creation, before kp padding: {len(keypoints)} {keypoints[0].shape}")
-        keypoints = pad_sequence(keypoints, batch_first=True)
-        print(f"set creation, after kp padding: {keypoints.shape}")
+        #keypoints = pad_sequence(keypoints, batch_first=True)
+        #print(f"set creation, after kp padding: {keypoints.shape}")
         
         torch.save(mfccs, f"{dataset_folder}{set_dist}_mfccs.pt" )
-        np.save(f"{dataset_folder}{set_dist}_keypoints", keypoints, allow_pickle=True)
+        torch.save(f"{dataset_folder}{set_dist}_keypoints_not_padded", keypoints, allow_pickle=True)
         # break
