@@ -8,6 +8,7 @@ import torch
 from typing import Any, Callable, Dict, Sequence, Tuple, Union
 from torch.nn.utils.rnn import pad_sequence
 import os
+from sklearn.decomposition import PCA
 
 SequenceOrTensor = Union[Sequence, torch.Tensor]
 
@@ -70,11 +71,35 @@ def extract_mfcc(audio_file_path, resample=True):
         audio = resampler(audio)
     mfcc = transforms.MFCC(sample_rate=sr, melkwargs={"n_mels": 40})
     coefs = mfcc(audio)
-    #print(f"mfcc coefs initial shape: {coefs.shape}")
+    #print(f"1mfcc coefs initial shape: {coefs.shape}")
     coefs = torch.transpose(coefs, 1, 2)
     coefs = torch.squeeze(coefs)
-    #print(f"mfcc coefs after transposing and squeezing shape: {coefs.shape}")
+    #print(f"1mfcc coefs after transposing and squeezing shape: {coefs.shape}")
     return coefs
+
+def extract_mfcc_masking(audio_file_path, resample=True, set_name="Train"):
+    audio, sr =  read_audio_file(audio_file_path)
+    if resample:
+        resampler = transforms.Resample(orig_freq=sr, new_freq=16000)
+        sr = 16000
+        audio = resampler(audio)
+    if set_name == "Train":
+        aud_transf = torch.nn.Sequential(
+            torchaudio.transforms.MelSpectrogram(sample_rate=16000, n_mels=128),
+            torchaudio.transforms.FrequencyMasking(freq_mask_param=15),
+            torchaudio.transforms.TimeMasking(time_mask_param=35)
+            )
+    else:
+        aud_transf =  torchaudio.transforms.MelSpectrogram()
+
+    coefs = aud_transf(audio)
+    c2 = aud_transf(audio)
+    # print(f"mfcc coefs initial shape: {coefs.shape}")
+    coefs = torch.transpose(coefs, 1, 2)
+    coefs = torch.squeeze(coefs)
+
+    return coefs
+
 
 def apply_window(mfccs, kps):
     past_window = 40
@@ -105,27 +130,39 @@ def assemble_set(train_test_dist, set_name="Train"):
     file_names = sorted(train_test_dist[train_test_dist.set == set_name].video.unique())
     mfccs_list = []
     keypoints_list = []
+    aud_len = []
+    kp_len = []
     ds = []
     file_names = tqdm(file_names)
+    i = 0
     for file_name in file_names:
+        i+=1
         # get  the files to process
         audio_file_path, keypoints_folder = assemble_path(file_name)
         # extract keypoints
         keypoints = find_keypoints(keypoints_folder)
         # extract mfccs
         mfccs = extract_mfcc(audio_file_path)
+        # mfccs = extract_mfcc_masking(audio_file_path, set_name)
+        aud_len.append(mfccs.shape[0]//2)
+        kp_len.append(len(keypoints))
         # print(mfccs.shape)
         # print(keypoints.shape)
-        mfccs, keypoints = apply_window(mfccs=mfccs, kps=keypoints)
+        #mfccs, keypoints = apply_window(mfccs=mfccs, kps=keypoints)
         # print(mfccs.shape)
         # print(keypoints.shape)
+        # pca = PCA(n_components=200)
+        # mfccs = torch.from_numpy(pca.fit_transform(mfccs))
+
+        # kp_pca = PCA(n_components=30)
+        # keypoints = torch.from_numpy(kp_pca.fit_transform(keypoints))
         
 
         # append to the dataset list
         mfccs_list.append(mfccs)
         keypoints_list.append(keypoints)
-        
-    return mfccs_list, keypoints_list
+
+    return mfccs_list, keypoints_list, aud_len, kp_len
 
 
     
@@ -142,7 +179,7 @@ if __name__ == '__main__':
     for set_dist in ["Train", "Val", "Test"]:
         dataset_folder = os.path.abspath("") +  "/dataset/"
         print(dataset_folder)
-        mfccs, keypoints = assemble_set(train_test_dist, set_name=set_dist)
+        mfccs, keypoints, aud_len, kp_len = assemble_set(train_test_dist, set_name=set_dist)
         
         print(f"set creation, before mfcc padding: {len(mfccs)}, {mfccs[0].shape}")
         mfccs = pad_sequence(mfccs, batch_first=True)
