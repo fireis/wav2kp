@@ -28,7 +28,7 @@ def assemble_path(file_name):
 
     return audio_file, keypoints_folder
 
-def upsample_keypoints(kps, scale=4, mode='linear'):
+def upsample_keypoints(kps, scale=3, mode='linear'):
     t = torch.Tensor(kps)
     m = torch.nn.Upsample(scale_factor=scale, mode=mode)
     tt = torch.transpose(t, 0, 2)
@@ -88,7 +88,7 @@ def extract_mfcc(audio_file_path, resample=True):
     #print(f"1mfcc coefs initial shape: {coefs.shape}")
     coefs = torch.transpose(coefs, 1, 2)
     coefs = torch.squeeze(coefs)
-    #print(f"1mfcc coefs after transposing and squeezing shape: {coefs.shape}")
+    print(f"1mfcc coefs after transposing and squeezing shape: {coefs.shape}")
     return coefs
 
 def extract_mfcc_masking(audio_file_path, resample=True, set_name="Train"):
@@ -172,6 +172,12 @@ def assemble_set(train_test_dist, set_name="Train"):
         # keypoints = torch.from_numpy(kp_pca.fit_transform(keypoints))
         
 
+        # I dont like this approach, but decided to try following obamanet
+        if (len(mfccs) > len(keypoints)):
+            mfccs = mfccs[0: len(keypoints)]
+        else:
+            keypoints = keypoints[0: len(mfccs)]
+        print(f"final shape: {mfccs.shape}, {keypoints.shape}")
         # append to the dataset list
         mfccs_list.append(mfccs)
         keypoints_list.append(keypoints)
@@ -204,5 +210,5 @@ if __name__ == '__main__':
         #print(f"set creation, after kp padding: {keypoints.shape}")
         
         torch.save(mfccs, f"{dataset_folder}{set_dist}_mfccs.pt" )
-        torch.save(f"{dataset_folder}{set_dist}_keypoints_not_padded", keypoints, allow_pickle=True)
+        torch.save(keypoints, f"{dataset_folder}{set_dist}_keypoints_upsampled", )
         # break
