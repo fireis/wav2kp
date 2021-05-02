@@ -15,7 +15,7 @@ def get_data_loaders(upsampled=True):
         val_keypoints = torch.load("dataset/Val_keypoints_upsampled")
         test_keypoints = torch.load("dataset/Test_keypoints_upsampled")
     else:
-    train_keypoints = np.load("dataset/Train_keypoints.npy",  allow_pickle=True)
+        train_keypoints = np.load("dataset/Train_keypoints.npy",  allow_pickle=True)
         val_keypoints = np.load("dataset/Val_keypoints.npy",  allow_pickle=True)
         test_keypoints = np.load("dataset/Test_keypoints.npy",  allow_pickle=True)
     
@@ -26,14 +26,8 @@ def get_data_loaders(upsampled=True):
     train_set  = BaseDataset(data=train_mfccs, targets=train_keypoints)
     train_loader = DataLoader(train_set)
 
-    val_keypoints = np.load("dataset/Val_keypoints.npy",  allow_pickle=True)
-    val_mfccs = torch.load("dataset/Val_mfccs.pt" )
-
     val_set  = BaseDataset(data=val_mfccs, targets=val_keypoints)
     val_loader = DataLoader(val_set)
-
-    test_keypoints = np.load("dataset/Test_keypoints.npy",  allow_pickle=True)
-    test_mfccs = torch.load("dataset/Test_mfccs.pt" )
 
     test_set  = BaseDataset(data=test_mfccs, targets=test_keypoints)
     test_loader = DataLoader(test_set)
@@ -60,7 +54,7 @@ class LSTM(pl.LightningModule):
 
         # Define the LSTM layer
         self.lstm = nn.LSTM(self.input_dim, self.hidden_dim, self.num_layers, batch_first=True)
-
+        self.dropout = nn.Dropout(p=0.2)
         # Define the output layer
         self.linear = nn.Linear(self.dnn_shape, output_dim)
 
@@ -71,17 +65,10 @@ class LSTM(pl.LightningModule):
 
     def forward(self, input):
         # Forward pass through LSTM layer
-        # shape of lstm_out: [input_size, batch_size, hidden_dim]
-        # shape of self.hidden: (a, b), where a and b both 
-        # have shape (num_layers, batch_size, hidden_dim).
-        #print(f"input.view(len(input) {input.view(len(input), self.batch_size, -1).shape}")
-        # lstm_out, self.hidden = self.lstm(input.view(len(input), self.batch_size, -1))
         lstm_out, self.hidden = self.lstm(input)
-        #print(lstm_out.shape)
         
-        # Only take the output from the final timetep
-        # Can pass on the entirety of lstm_out to the next layer if it is a seq2seq prediction
-        # y_pred = self.linear(lstm_out[-1].view(self.batch_size, -1))
+        lstm_out = self.dropout(lstm_out)
+        
         y_pred = self.linear(lstm_out)
         #print(f"y_pred.shape in net: {y_pred.shape}")
         return y_pred
@@ -89,14 +76,15 @@ class LSTM(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         X_batch, y_batch = batch
-        #print(f" X_batch:{X_batch.shape}, y_batch: {y_batch.shape}")
-        y_pred = self.forward(X_batch)
-        #print(f"y_pred.shape: {y_pred.shape}, y_batch.shape(): {y_batch.shape}")
+        # print(f" X_batch:{X_batch.shape}, y_batch: {y_batch.shape}")
+        y_pred = self.forward(X_batch.float())
         loss_fn = torch.nn.MSELoss()
         loss = loss_fn(y_pred, y_batch.float())
+        #print(f"y_pred.shape: {y_pred.shape}, y_batch.shape(): {y_batch.shape}")
+        # loss_fn = torch.nn.CTCLoss()
+        # loss = loss_fn(y_pred, y_batch.float())
         # criterion = nn.BCEWithLogitsLoss()
         # loss = criterion(y_pred, y_batch.unsqueeze(1))
-        tensorboard_logs = {'train_loss': loss}
         self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
         return {'loss': loss}
         
@@ -105,31 +93,31 @@ class LSTM(pl.LightningModule):
     
     def validation_step(self, batch, batch_idx):
         X_batch, y_batch = batch
-        y_pred = self.forward(X_batch)
+        y_pred = self.forward(X_batch.float())
+        # print(f" X_batch:{X_batch.shape}, y_batch: {y_batch.shape} \n {y_pred.shape}")
+
         loss_fn = torch.nn.MSELoss()
         loss = loss_fn(y_pred, y_batch.float())
-        tensorboard_logs = {'val_loss': loss}
+        # print(y_batch.squeeze().shape[0])
+        # loss_fn = torch.nn.CTCLoss()
+        # loss = loss_fn(y_pred, y_batch.float(), [X_batch.squeeze().shape[0]],[y_batch.squeeze().shape[0]] )
         self.log('val_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
         return {'loss': loss}
 
     def configure_optimizers(self):
         optimizer = optim.Adam(self.parameters(), lr=0.01)
-        scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=500, gamma=0.5)
+        scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=300, gamma=0.5)
 
         return [optimizer], [scheduler]
-
-
 
 
 if __name__ == '__main__':
 
     train_loader, val_loader, test_loader = get_data_loaders()
 
-    model = LSTM(1600, 20, batch_size=80, output_dim=136, num_layers=1, dnn_shape=20)
-
-    logger = pl.loggers.TensorBoardLogger("training/logs", name="i20_o80")
-
-    trainer = pl.Trainer(logger=logger, weights_save_path="training/chkpt", gpus=1, max_epochs=1000000)
+    model = LSTM(40, 20, batch_size=80, output_dim=136, num_layers=1, dnn_shape=20)
+    logger = pl.loggers.TensorBoardLogger("training/logs", name="i40_o20_b80_ups_s300")
+    trainer = pl.Trainer(logger=logger, weights_save_path="training/chkpt", gpus=1, max_epochs=10000)
 
     trainer.fit(model, train_loader, val_dataloaders=val_loader)
 
