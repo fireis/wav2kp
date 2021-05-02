@@ -9,9 +9,19 @@ import torch.nn.functional as F
 from torch import optim
 
 
-def get_data_loaders():
+def get_data_loaders(upsampled=True):
+    if upsampled:
+        train_keypoints = torch.load("dataset/Train_keypoints_upsampled")
+        val_keypoints = torch.load("dataset/Val_keypoints_upsampled")
+        test_keypoints = torch.load("dataset/Test_keypoints_upsampled")
+    else:
     train_keypoints = np.load("dataset/Train_keypoints.npy",  allow_pickle=True)
+        val_keypoints = np.load("dataset/Val_keypoints.npy",  allow_pickle=True)
+        test_keypoints = np.load("dataset/Test_keypoints.npy",  allow_pickle=True)
+    
     train_mfccs = torch.load("dataset/Train_mfccs.pt" )
+    val_mfccs = torch.load("dataset/Val_mfccs.pt" )
+    test_mfccs = torch.load("dataset/Test_mfccs.pt" )
 
     train_set  = BaseDataset(data=train_mfccs, targets=train_keypoints)
     train_loader = DataLoader(train_set)
