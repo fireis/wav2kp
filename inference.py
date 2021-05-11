@@ -129,7 +129,8 @@ def draw_face_edges_v2v(frames, file_name):
             current_coord = int(p/2)
             keypoints[current_coord, 0] = frame[p]
             keypoints[current_coord, 1] = frame[p+1]
-            
+
+        np.savetxt(f"{file_name}/{idx:05}.txt", keypoints, delimiter=",", fmt="%05d")
         # print(keypoints.shape)
         # print(frame[48])
     
@@ -159,6 +160,7 @@ def draw_face_edges_v2v(frames, file_name):
         im_edges = Image.fromarray(im_edges)
         # im_edges = resize_img(im_edges, keypoints)
         im_edges.save(f"{file_name}/{idx:05}.png")
+
         # Image.fromarray(crop(im_edges, keypoints)).save(A_path.replace("txt", "png").replace("keypoints", "gambi_image"))
     return
 
@@ -172,6 +174,33 @@ def rescale_keypoints(keypoints, max_size=(256, 256)):
     
     
     return keypoints
+
+def upsample_keypoints(kps, scale=1/3, mode='linear'):
+    t = torch.Tensor(kps)
+    m = torch.nn.Upsample(scale_factor=scale, mode=mode)
+    tt = torch.transpose(t, 0, 2)
+    utt = m(tt)
+    uttt = torch.transpose(utt, 0, 2)
+    return uttt
+
+def subsample(kps, scale=3):
+
+	# Subsample the points
+    kps = kps.squeeze()
+    print(kps.shape)
+    new_shape = int(kps.shape[0]/scale)
+    
+    new_y = np.zeros((new_shape,136))
+    for idx in range(new_y.shape[0]):
+        if not (idx*scale > kps.shape[0]-1):
+            # Get into (x, y) format
+            new_y[idx] = kps[int(idx*scale)]
+        else:
+            break
+    # print('Subsampled y:', new_y.shape)
+    new_y = [np.array(each) for each in new_y.tolist()]
+    # print(len(new_y))
+    return new_y
 
 if __name__ == '__main__':
     
@@ -200,14 +229,17 @@ if __name__ == '__main__':
         except:
             pass
         for idx, name in tqdm(enumerate(file_names, 0)):
-            print(name, idx)
+            # print(name, idx)
 
             infered = model(train_mfccs[idx].unsqueeze(0))
             infered = rescale_keypoints(infered.detach())
+            infered = subsample(infered)
+
             new_path = f"results/{set_name}/{name}"
             try:
                 os.mkdir(new_path)
             except:
                 pass
-            draw_face_edges_v2v(infered.squeeze(), new_path)
-            os.system(f"docker run -v C:/studies/wav2kp/results/{set_name}/{name}:/t/  jrottenberg/ffmpeg  -start_number 0 -i /t/%05d.png -c:v libx264 -vf \"fps=25,format=yuv420p\" /t/{name}.mp4 -y")
+            # print(len(infered), infered[0].shape)
+            draw_face_edges_v2v(infered, new_path)
+            # os.system(f"docker run -v C:/studies/wav2kp/results/{set_name}/{name}:/t/  jrottenberg/ffmpeg  -start_number 0 -i /t/%05d.png -c:v libx264 -vf \"fps=24.97,format=yuv420p\" /t/{name}.mp4 -y")
