@@ -134,6 +134,9 @@
 
 - Starting evaluating the results and planning the presentation
 
+## Day 28 - 05/10/2021
+
+- Prepared for the mass inference of the whole set;
 
 
 days 1 and 2 ~8h
@@ -157,6 +160,8 @@ day 24 1h30
 day 25 30m
 day 26 30m
 day 27 1h30m
+day 28 30m
+day 29 
 
 
  
