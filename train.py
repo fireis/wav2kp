@@ -116,7 +116,7 @@ class LSTM(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = optim.Adam(self.parameters(), lr=0.0001)
-        scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=500, gamma=0.5)
+        scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=2000, gamma=0.5)
         # scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', verbose=True, patience = 50)
 
         return ({"optimizer": optimizer, "scheduler": scheduler, "monitor":"val_loss"})
@@ -126,8 +126,28 @@ if __name__ == '__main__':
 
     train_loader, val_loader, test_loader = get_data_loaders(upsampled=True, pca=False, windowed=True)
     lr_monitor = LearningRateMonitor(logging_interval='step')
-    model = LSTM(2000, 200, batch_size=10, output_dim=136, num_layers=1)
-    model_name = 'i2000_o200_b10_ups_s2000'
+    model = LSTM(2000, 300, batch_size=40, output_dim=136, num_layers=2)
+    model_name = 'i2000_o300_b40_ups_l2_s2000'
+    logger = pl.loggers.TensorBoardLogger("training/logs", name=model_name)
+    trainer = pl.Trainer(logger=logger, weights_save_path="training/chkpt", gpus=1, max_epochs=16000, callbacks=[lr_monitor])#, overfit_batches=0.02)
+
+    trainer.fit(model, train_loader, val_dataloaders=val_loader)
+    trainer.save_checkpoint(f"{model_name}_16000.ckpt")
+
+    train_loader, val_loader, test_loader = get_data_loaders(upsampled=True, pca=False, windowed=True)
+    lr_monitor = LearningRateMonitor(logging_interval='step')
+    model = LSTM(2000, 100, batch_size=10, output_dim=136, num_layers=2)
+    model_name = 'i2000_o100_b10_ups_l2_s2000'
+    logger = pl.loggers.TensorBoardLogger("training/logs", name=model_name)
+    trainer = pl.Trainer(logger=logger, weights_save_path="training/chkpt", gpus=1, max_epochs=16000, callbacks=[lr_monitor])#, overfit_batches=0.02)
+
+    trainer.fit(model, train_loader, val_dataloaders=val_loader)
+    trainer.save_checkpoint(f"{model_name}_16000.ckpt")
+
+    train_loader, val_loader, test_loader = get_data_loaders(upsampled=True, pca=False, windowed=True)
+    lr_monitor = LearningRateMonitor(logging_interval='step')
+    model = LSTM(2000, 300, batch_size=10, output_dim=136, num_layers=2)
+    model_name = 'i2000_o300_b10_ups_l2_s2000'
     logger = pl.loggers.TensorBoardLogger("training/logs", name=model_name)
     trainer = pl.Trainer(logger=logger, weights_save_path="training/chkpt", gpus=1, max_epochs=16000, callbacks=[lr_monitor])#, overfit_batches=0.02)
 

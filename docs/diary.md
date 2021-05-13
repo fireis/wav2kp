@@ -138,6 +138,14 @@
 
 - Prepared for the mass inference of the whole set;
 
+## Day 29 - 05/11/2021
+
+- Ran the results through emotvid2vid model to obtain final results;
+- Created the validation script to calculate the MSE between original keypoints and synthesized ones.
+
+## Day 30 and 31 - 05/12/2021 and 05/13/2021
+
+- Report and presentation
 
 days 1 and 2 ~8h
 days 3 and 4 ~6h
@@ -161,7 +169,5 @@ day 25 30m
 day 26 30m
 day 27 1h30m
 day 28 30m
-day 29 
-
-
- 
+day 29 30m
+days 30 and 31 3h

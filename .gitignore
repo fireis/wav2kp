@@ -129,4 +129,10 @@ dmypy.json
 .pyre/
 raw_videos/*
 training/*
+results/*
+test_img/*
+test_keypoints/*
 .vscode/settings.json
+*.ckpt
+*.pt
+*.npy

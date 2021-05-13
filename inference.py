@@ -157,7 +157,8 @@ def draw_face_edges_v2v(frames, file_name):
                     drawEdge(im_edges, curve_x, curve_y, color=color_edge)
 
         # np.save(im_edges,A_path.replace("txt", "png").replace("keypoints", "gambi_image"))
-        im_edges = Image.fromarray(im_edges)
+        # im_edges = Image.fromarray(im_edges)
+        im_edges = Image.open("00001.png")
         # im_edges = resize_img(im_edges, keypoints)
         im_edges.save(f"{file_name}/{idx:05}.png")
 
@@ -187,7 +188,7 @@ def subsample(kps, scale=3):
 
 	# Subsample the points
     kps = kps.squeeze()
-    print(kps.shape)
+    # print(kps.shape)
     new_shape = int(kps.shape[0]/scale)
     
     new_y = np.zeros((new_shape,136))
