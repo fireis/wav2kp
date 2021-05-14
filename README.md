@@ -32,9 +32,11 @@ Our audio data is sampled at 16kHz and windowed, and our images are 29.97fps. To
 As the audio data is highly temporal-dependant and repetitive, we have followed other approaches, such as [Obamanet](https://github.com/karanvivekbhargava/obamanet) and used an LSTM followed by a fully connected neural network layer to obtain our results. 
 
 ## Results
-Our initial results show that we are on a good path, but the road is long. The main issue we are facing now is that the results are not as realistic as needed to achieve good results on the GAN synthesis. The current results are available in the section below. 
+Our initial results show that we are on a good path, but the road is long. The main issue we are facing now is that the results are not as realistic as needed to achieve good results on the GAN synthesis. The current results are available in the section below as a sample. 
 
 ### Results - WAV2KP
+<video src="docs/em1_fala1_synth.mp4" width="640" height="400" controls preload></video>
 
 
 ### Results - WAV2KP with Vid2vid
+<video src="docs/em1_fala1_v2v.mp4" width="640" height="400" controls preload></video>
