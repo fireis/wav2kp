@@ -35,8 +35,12 @@ As the audio data is highly temporal-dependant and repetitive, we have followed 
 Our initial results show that we are on a good path, but the road is long. The main issue we are facing now is that the results are not as realistic as needed to achieve good results on the GAN synthesis. The current results are available in the section below as a sample. 
 
 ### Results - WAV2KP
-<video src="docs/em1_fala1_synth.mp4" width="640" height="400" controls preload></video>
+
+https://user-images.githubusercontent.com/20783380/118335337-ccb73000-b4e5-11eb-9ca0-9b09179a5b64.mp4
 
 
 ### Results - WAV2KP with Vid2vid
-<video src="docs/em1_fala1_v2v.mp4" width="640" height="400" controls preload></video>
+
+https://user-images.githubusercontent.com/20783380/118335371-e0fb2d00-b4e5-11eb-9f57-5d702661725e.mp4
+
+
