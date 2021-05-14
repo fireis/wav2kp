@@ -143,31 +143,54 @@
 - Ran the results through emotvid2vid model to obtain final results;
 - Created the validation script to calculate the MSE between original keypoints and synthesized ones.
 
-## Day 30 and 31 - 05/12/2021 and 05/13/2021
+## Day 30, 31 and 32 - 05/12/2021 to 05/14/2021
 
 - Report and presentation
 
 days 1 and 2 ~8h
+
 days 3 and 4 ~6h
+
 days 5 to 8 ~3h
+
 day 9  5h
+
 day 10  6h
+
 day 11 1h30m
+
 day 12 1h
+
 day 13 3h
+
 day 14 .5h
+
 day 15 1h30m
+
 day 16 3h
+
 day 17  3h
+
 day 18  2h
+
 day 19 1h
-day 20  14
+
+day 20  1
+
 day 21 3h
+
 day 22 and 23 1h +
+
 day 24 1h30
+
 day 25 30m
+
 day 26 30m
+
 day 27 1h30m
+
 day 28 30m
+
 day 29 30m
-days 30 and 31 3h
+
+days 30 to 32 7h
