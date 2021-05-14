@@ -44,24 +44,11 @@ def find_keypoints(keypoints_folder):
     for frame in frames_list:
         kps = read_keypoint_txt(frame)
         kps = scale_keypoints(kps)
-        # make x and y a single sequence to make predictions easier
-        # kps = np.reshape(kps, (1, 136)).squeeze()
-        # print(f"find_keypoints, after reading and making xy continuous: {kps.shape}")
-        # kps = torch.Tensor(kps)
         keypoints.append(kps)
-        # print(f"find_keypoints, after reading keypointss: {kps.shape}")
-    print(f"pre upsampling {len(keypoints)} {keypoints[0].shape}")
+
     keypoints = upsample_keypoints(keypoints)
-    print(f"post upsampling {keypoints.shape}")
     keypoints = torch.reshape(keypoints, (keypoints.shape[0], 136))
-    print(f"post reshaping {keypoints.shape}")
-    # kps = np.reshape(kps, (1, 136)).squeeze()
-        
-    print(f"find_keypoints, before padding: {len(keypoints)} , {keypoints[0].shape}")
-    # keypoints = pad_sequence(keypoints, batch_first=True)
-    #print(f"find_keypoints, after padding: {keypoints.shape}")
-    # transform to numpy array to make processing easier
-    # keypoints = np.array(keypoints) 
+
     
     return keypoints
 
@@ -85,7 +72,6 @@ def extract_mfcc(audio_file_path, resample=True):
         audio = resampler(audio)
     mfcc = transforms.MFCC(sample_rate=sr, melkwargs={"n_mels": 40})
     coefs = mfcc(audio)
-    #print(f"1mfcc coefs initial shape: {coefs.shape}")
     coefs = torch.transpose(coefs, 1, 2)
     coefs = torch.squeeze(coefs)
     print(f"1mfcc coefs after transposing and squeezing shape: {coefs.shape}")
@@ -108,7 +94,6 @@ def extract_mfcc_masking(audio_file_path, resample=True, set_name="Train"):
 
     coefs = aud_transf(audio)
     c2 = aud_transf(audio)
-    # print(f"mfcc coefs initial shape: {coefs.shape}")
     coefs = torch.transpose(coefs, 1, 2)
     coefs = torch.squeeze(coefs)
 
@@ -116,6 +101,10 @@ def extract_mfcc_masking(audio_file_path, resample=True, set_name="Train"):
 
 
 def apply_window(mfccs, kps):
+    """
+    This function is heavily inspired by the obamanet approach:
+     https://github.com/karanvivekbhargava/obamanet
+    """
     past_window = 40
     time_delay = 20
     X=[]
@@ -157,20 +146,10 @@ def assemble_set(train_test_dist, set_name="Train"):
         keypoints = find_keypoints(keypoints_folder)
         # extract mfccs
         mfccs = extract_mfcc(audio_file_path)
-        # mfccs = extract_mfcc_masking(audio_file_path, set_name)
         aud_len.append(mfccs.shape[0]//2)
         kp_len.append(len(keypoints))
-        # print(mfccs.shape)
-        # print(keypoints.shape)
-        #mfccs, keypoints = apply_window(mfccs=mfccs, kps=keypoints)
-        # print(mfccs.shape)
-        # print(keypoints.shape)
-        # pca = PCA(n_components=200)
-        # mfccs = torch.from_numpy(pca.fit_transform(mfccs))
 
-        # kp_pca = PCA(n_components=30)
-        # keypoints = torch.from_numpy(kp_pca.fit_transform(keypoints))
-        
+        mfccs, keypoints = apply_window(mfccs=mfccs, kps=keypoints)    
 
         # I dont like this approach, but decided to try following obamanet
         if (len(mfccs) > len(keypoints)):
@@ -187,9 +166,7 @@ def assemble_set(train_test_dist, set_name="Train"):
 
     
 if __name__ == '__main__':
-
-    # TODO: MAKE THIS READ THE PATH FROM ARGPARSE
-    
+   
     file_path = os.path.abspath("") + "/docs/train_val_test_dist.xlsx"
     train_test_dist = pd.read_excel(file_path)
     train_files = train_test_dist[train_test_dist.set == "Train"].video.unique()
@@ -202,13 +179,9 @@ if __name__ == '__main__':
         mfccs, keypoints, aud_len, kp_len = assemble_set(train_test_dist, set_name=set_dist)
         
         print(f"set creation, before mfcc padding: {len(mfccs)}, {mfccs[0].shape}")
-        #mfccs = pad_sequence(mfccs, batch_first=True)
-        #print(f"set creation, after mfcc padding: {mfccs.shape}")
+
 
         print(f"set creation, before kp padding: {len(keypoints)} {keypoints[0].shape}")
-        #keypoints = pad_sequence(keypoints, batch_first=True)
-        #print(f"set creation, after kp padding: {keypoints.shape}")
         
         torch.save(mfccs, f"{dataset_folder}{set_dist}_mfccs.pt" )
         torch.save(keypoints, f"{dataset_folder}{set_dist}_keypoints_upsampled", )
-        # break
