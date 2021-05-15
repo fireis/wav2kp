@@ -11,7 +11,7 @@ For the full description of my journey, and even learn with some mistakes, pleas
 
 ### Dataset used in our tests
 
-We use the CH-Unicamp Dataset, which contains videos of an actress speaking carefully designed sentences in Brazilian Portuguese. This dataset includes videos of the actress speaking the sentences performing each of the 22 emotion categories of the OCC emotion model.
+We use the [CH-Unicamp Dataset](https://www.dca.fee.unicamp.br/~paula/CH-Unicamp/termsconditions.html), which contains videos of an actress speaking carefully designed sentences in Brazilian Portuguese. This dataset includes videos of the actress speaking the sentences performing each of the 22 emotion categories of the OCC emotion model.
 
 ## Preprocessing - Initial Transformation
 
